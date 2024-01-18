@@ -11,7 +11,7 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import appStylesHref from "./app.css"
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { createEmptyContact, getContacts } from "./data.js";
 
@@ -19,8 +19,10 @@ export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: appStylesHref }];
 }
 
-export async function loader() {
-  const contacts = await getContacts();
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q");
+  const contacts = await getContacts(q);
   return json({ contacts });
 }
 
