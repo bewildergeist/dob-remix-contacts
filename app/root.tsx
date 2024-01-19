@@ -40,6 +40,8 @@ export default function App() {
     }
   }, [q]);
 
+  const searching = navigation.location && new URLSearchParams(navigation.location.search).has("q");
+
   return (
     <html lang="en">
       <head>
@@ -60,8 +62,9 @@ export default function App() {
                 type="search"
                 defaultValue={q || ""}
                 name="q"
+                className={searching ? "loading" : ""}
               />
-              <div id="search-spinner" aria-hidden hidden={true} />
+              <div id="search-spinner" aria-hidden hidden={!searching} />
             </Form>
             <Form method="post">
               <button type="submit">New</button>
@@ -72,7 +75,7 @@ export default function App() {
               <ul>
                 {contacts.map((contact) => (
                   <li key={contact.id}>
-                    <NavLink to={`contacts/${contact.id}`} className={({isActive, isPending}) => {
+                    <NavLink to={`contacts/${contact.id}`} className={({ isActive, isPending }) => {
                       return isActive ? "active" : isPending ? "pending" : ""
                     }}>
                       {contact.first || contact.last ? (
@@ -96,7 +99,7 @@ export default function App() {
             )}
           </nav>
         </div>
-        <div id="detail" className={navigation.state === "loading" ? "loading" : ""}>
+        <div id="detail" className={navigation.state === "loading" && !searching ? "loading" : ""}>
           <Outlet />
         </div>
 
