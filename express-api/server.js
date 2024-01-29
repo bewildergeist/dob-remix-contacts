@@ -14,6 +14,9 @@ const PORT = process.env.PORT;
 server.use(express.json()); // to parse JSON bodies
 server.use(cors()); // Enable CORS for all routes
 
+// Pretty print JSON
+server.set("json spaces", 2);
+
 // ========== Routes ========== //
 
 // Root route
