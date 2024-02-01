@@ -1,21 +1,22 @@
 import { Form, json, useFetcher, useLoaderData } from "@remix-run/react";
 import type { FunctionComponent } from "react";
-
-import { getContact, type ContactRecord, updateContact } from "../data";
+import type { ContactRecord } from "../data";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 export async function loader({ params }: LoaderFunctionArgs) {
-    invariant(params.contactId, "Missing contactId param");
-    const contact = await getContact(params.contactId);
-    if (!contact) {
-      throw new Response("Contact not found", { status: 404 });
-    }
-    return json({ contact });
+  invariant(params.contactId, "Missing contactId param");
+  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Response(error.message, { status: response.status });
+  }
+  const contact: ContactRecord = await response.json();
+  return json({ contact });
 }
 
 export default function Contact() {
-    const { contact } = useLoaderData<typeof loader>();
+  const { contact } = useLoaderData<typeof loader>();
 
   return (
     <div id="contact">
@@ -76,12 +77,15 @@ export default function Contact() {
   );
 }
 
-export async function action({ params, request }: ActionFunctionArgs) {
+export async function action({ params }: ActionFunctionArgs) {
   invariant(params.contactId, "Missing contactId param");
-  const formData = await request.formData();
-  return updateContact(params.contactId, {
-    favorite: formData.get("favorite") === "true",
+  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId + "/favorite", {
+    method: "PATCH"
   });
+  if (!response.ok) {
+    throw new Error("Failed to update favorite");
+  }
+  return null
 }
 
 const Favorite: FunctionComponent<{

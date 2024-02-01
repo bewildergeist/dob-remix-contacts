@@ -14,7 +14,7 @@ import {
 import appStylesHref from "./app.css"
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { createEmptyContact, getContacts } from "./data.js";
+import type { ContactRecord } from "./data.js";
 import { useEffect } from "react";
 
 export const links: LinksFunction = () => {
@@ -24,7 +24,15 @@ export const links: LinksFunction = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
-  const contacts = await getContacts(q);
+  let apiUrl = process.env.API_URL + "/contacts";
+  if (q) {
+    apiUrl += "/search?q=" + encodeURIComponent(q);
+  }
+  const res = await fetch(apiUrl);
+  if (!res.ok) {
+    throw new Error("Failed to load contacts");
+  }
+  const contacts: ContactRecord[] = await res.json();
   return json({ contacts, q });
 }
 
@@ -80,8 +88,8 @@ export default function App() {
             {contacts.length ? (
               <ul>
                 {contacts.map((contact) => (
-                  <li key={contact.id}>
-                    <NavLink to={`contacts/${contact.id}`} className={({ isActive, isPending }) => {
+                  <li key={contact._id}>
+                    <NavLink to={`contacts/${contact._id}`} className={({ isActive, isPending }) => {
                       return isActive ? "active" : isPending ? "pending" : ""
                     }}>
                       {contact.first || contact.last ? (
@@ -118,6 +126,14 @@ export default function App() {
 }
 
 export async function action() {
-  const contact = await createEmptyContact();
-  return redirect(`/contacts/${contact.id}/edit`)
+  const response = await fetch(process.env.API_URL + "/contacts", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+  const contact = await response.json();
+  return redirect(`/contacts/${contact._id}/edit`)
 }
