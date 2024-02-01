@@ -3,18 +3,18 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { getContact, updateContact } from "../data";
+import type { ContactRecord } from "../data";
 
-export const loader = async ({
-  params,
-}: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   invariant(params.contactId, "Missing contactId param");
-  const contact = await getContact(params.contactId);
-  if (!contact) {
-    throw new Response("Not Found", { status: 404 });
+  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Response(error.message, { status: response.status });
   }
+  const contact: ContactRecord = await response.json();
   return json({ contact });
-};
+}
 
 export default function EditContact() {
   const { contact } = useLoaderData<typeof loader>();
@@ -77,7 +77,17 @@ export default function EditContact() {
 export async function action({ params, request }: ActionFunctionArgs) {
   invariant(params.contactId, "Missing contactId param");
   const formData = await request.formData();
-  const updates =  Object.fromEntries(formData);
-  await updateContact(params.contactId, updates);
+  const updates = Object.fromEntries(formData);
+  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updates),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Response(error.message, { status: response.status });
+  }
   return redirect(`/contacts/${params.contactId}`);
 }

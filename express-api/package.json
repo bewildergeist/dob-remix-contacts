@@ -1,0 +1,17 @@
+{
+    "name": "express-api",
+    "version": "1.0.0",
+    "description": "Express.js REST API for Contacts",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "start": "node --env-file=.env --watch server.js"
+    },
+    "author": "Rasmus Cederdorff (RACE) & Dan Okkels Brendstrup (DOB)",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "mongodb": "^6.3.0"
+    }
+}
