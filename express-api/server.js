@@ -40,8 +40,8 @@ server.get("/contacts/search", async (req, res) => {
     const query = {
         $or: [
             { first: { $regex: searchString, $options: "i" } },
-            { last: { $regex: searchString, $options: "i" } }
-        ]
+            { last: { $regex: searchString, $options: "i" } },
+        ],
     }; // MongoDB query
 
     const results = await db
@@ -56,14 +56,20 @@ server.get("/contacts/search", async (req, res) => {
 // Get single contact (GET /contacts/:id)
 server.get("/contacts/:id", async (req, res) => {
     const id = req.params.id; // get id from request URL
-    const contact = await db
-        .collection("contacts")
-        .findOne({ _id: new ObjectId(id) }); // Get contact from database
 
-    if (contact) {
-        res.json(contact); // return first contact from results as JSON
-    } else {
-        res.status(404).json({ message: "Contact not found!" }); // otherwise return 404 and error message
+    try {
+        const objectId = new ObjectId(id); // create ObjectId from id
+        const contact = await db
+            .collection("contacts")
+            .findOne({ _id: objectId }); // Get contact from database
+
+        if (contact) {
+            res.json(contact); // return first contact from results as JSON
+        } else {
+            res.status(404).json({ message: "Contact not found!" }); // otherwise return 404 and error message
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
     }
 });
 
@@ -83,15 +89,20 @@ server.post("/contacts", async (req, res) => {
 // Update contact (PUT /contacts/:id)
 server.put("/contacts/:id", async (req, res) => {
     const id = req.params.id; // get id from request URL
-    const updatedContact = req.body; // get updated properties from request body
-    const result = await db
-        .collection("contacts")
-        .updateOne({ _id: new ObjectId(id) }, { $set: updatedContact }); // Update contact in database
+    try {
+        const objectId = new ObjectId(id); // create ObjectId from id
+        const updatedContact = req.body; // get updated properties from request body
+        const result = await db
+            .collection("contacts")
+            .updateOne({ _id: objectId }, { $set: updatedContact }); // Update contact in database
 
-    if (result.acknowledged) {
-        res.json({ message: `Updated contact with id ${id}` }); // return message
-    } else {
-        res.status(500).json({ message: "Failed to update contact" }); // return error message
+        if (result.acknowledged) {
+            res.json({ message: `Updated contact with id ${id}` }); // return message
+        } else {
+            res.status(500).json({ message: "Failed to update contact" }); // return error message
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
     }
 });
 
@@ -99,14 +110,19 @@ server.put("/contacts/:id", async (req, res) => {
 server.delete("/contacts/:id", async (req, res) => {
     const id = req.params.id; // get id from request URL
 
-    const result = await db
-        .collection("contacts")
-        .deleteOne({ _id: new ObjectId(id) }); // Delete contact from database
+    try {
+        const objectId = new ObjectId(id); // create ObjectId from id
+        const result = await db
+            .collection("contacts")
+            .deleteOne({ _id: objectId }); // Delete contact from database
 
-    if (result.acknowledged) {
-        res.json({ message: `Deleted contact with id ${id}` }); // return message
-    } else {
-        res.status(500).json({ message: "Failed to delete contact" }); // return error message
+        if (result.acknowledged) {
+            res.json({ message: `Deleted contact with id ${id}` }); // return message
+        } else {
+            res.status(500).json({ message: "Failed to delete contact" }); // return error message
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
     }
 });
 
@@ -114,25 +130,30 @@ server.delete("/contacts/:id", async (req, res) => {
 server.patch("/contacts/:id/favorite", async (req, res) => {
     const id = req.params.id; // get id from request URL
 
-    const contact = await db
-        .collection("contacts")
-        .findOne({ _id: new ObjectId(id) }); // Get the contact from the database
-
-    if (contact) {
-        const newFavoriteValue = !contact.favorite; // Toggle the favorite field
-        // Update the contact in the database
-        await db
+    try {
+        const objectId = new ObjectId(id); // create ObjectId from id
+        const contact = await db
             .collection("contacts")
-            .updateOne(
-                { _id: new ObjectId(id) },
-                { $set: { favorite: newFavoriteValue } }
-            );
+            .findOne({ _id: objectId }); // Get the contact from the database
 
-        res.json({
-            message: `Toggled favorite property of contact with id ${id}`
-        }); // return message
-    } else {
-        res.status(404).json({ message: "Contact not found!" }); // return 404 if contact was not found
+        if (contact) {
+            const newFavoriteValue = !contact.favorite; // Toggle the favorite field
+            // Update the contact in the database
+            await db
+                .collection("contacts")
+                .updateOne(
+                    { _id: objectId },
+                    { $set: { favorite: newFavoriteValue } }
+                );
+
+            res.json({
+                message: `Toggled favorite property of contact with id ${id}`,
+            }); // return message
+        } else {
+            res.status(404).json({ message: "Contact not found!" }); // return 404 if contact was not found
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
     }
 });
 
