@@ -19,6 +19,11 @@ module.exports = {
     commonjs: true,
     es6: true,
   },
+  globals: {
+    // Because loaders and actions are defined in the app's routes, allow
+    // reading from `process`.
+    process: "readonly",
+  },
 
   // Base config
   extends: ["eslint:recommended"],
@@ -47,6 +52,7 @@ module.exports = {
           typescript: {},
         },
       },
+    
     },
 
     // Typescript
