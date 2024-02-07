@@ -11,12 +11,13 @@ import {
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
-import appStylesHref from "./app.css"
 import { json, redirect } from "@remix-run/node";
 import { useEffect } from "react";
+import appStylesHref from "./app.css"
+import tailwindStylesHref from "./tailwind.css"
 
 export function links() {
-  return [{ rel: "stylesheet", href: appStylesHref }];
+  return [{ rel: "stylesheet", href: tailwindStylesHref }, { rel: "stylesheet", href: appStylesHref }];
 }
 
 export async function loader({ request }) {
