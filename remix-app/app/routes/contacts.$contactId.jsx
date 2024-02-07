@@ -81,9 +81,9 @@ export default function Contact() {
       </Form>
       {contact.notes?.length > 0 && (
         <ul>
-          {contact.notes.map((note, index) => (
+          {[...contact.notes].reverse().map((item, index) => (
             <li key={index} className="border-b border-gray-200">
-              <p className="py-3">{note}</p>
+              <p className="py-3">{item.note}</p>
             </li>
           ))}
         </ul>
@@ -92,16 +92,33 @@ export default function Contact() {
   );
 }
 
-export async function action({ params }) {
+export async function action({ request, params }) {
   invariant(params.contactId, "Missing contactId param");
-  const response = await fetch(
-    process.env.API_URL + "/contacts/" + params.contactId + "/favorite",
-    {
-      method: "PATCH",
-    },
-  );
-  if (!response.ok) {
-    throw new Error("Failed to update favorite");
+  const formData = await request.formData();
+  if (formData.has("favorite")) {
+    const response = await fetch(
+      process.env.API_URL + "/contacts/" + params.contactId + "/favorite",
+      {
+        method: "PATCH",
+      },
+    );
+    if (!response.ok) {
+      throw new Error("Failed to update favorite");
+    }
+  } else if (formData.has("note")) {
+    const response = await fetch(
+      process.env.API_URL + "/contacts/" + params.contactId + "/notes",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(Object.fromEntries(formData)),
+      },
+    );
+    if (!response.ok) {
+      throw new Error("Failed to create note");
+    }
   }
   return null;
 }
