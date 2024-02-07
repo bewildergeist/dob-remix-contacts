@@ -3,7 +3,9 @@ import invariant from "tiny-invariant";
 
 export async function loader({ params }) {
   invariant(params.contactId, "Missing contactId param");
-  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId);
+  const response = await fetch(
+    process.env.API_URL + "/contacts/" + params.contactId,
+  );
   if (!response.ok) {
     const error = await response.json();
     throw new Response(error.message, { status: response.status });
@@ -39,9 +41,7 @@ export default function Contact() {
 
         {contact.twitter ? (
           <p>
-            <a
-              href={`https://twitter.com/${contact.twitter}`}
-            >
+            <a href={`https://twitter.com/${contact.twitter}`}>
               {contact.twitter}
             </a>
           </p>
@@ -59,7 +59,7 @@ export default function Contact() {
             method="post"
             onSubmit={(event) => {
               const response = confirm(
-                "Please confirm you want to delete this record."
+                "Please confirm you want to delete this record.",
               );
               if (!response) {
                 event.preventDefault();
@@ -76,13 +76,16 @@ export default function Contact() {
 
 export async function action({ params }) {
   invariant(params.contactId, "Missing contactId param");
-  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId + "/favorite", {
-    method: "PATCH"
-  });
+  const response = await fetch(
+    process.env.API_URL + "/contacts/" + params.contactId + "/favorite",
+    {
+      method: "PATCH",
+    },
+  );
   if (!response.ok) {
     throw new Error("Failed to update favorite");
   }
-  return null
+  return null;
 }
 
 function Favorite({ contact }) {
@@ -94,11 +97,7 @@ function Favorite({ contact }) {
   return (
     <fetcher.Form method="post">
       <button
-        aria-label={
-          favorite
-            ? "Remove from favorites"
-            : "Add to favorites"
-        }
+        aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
         name="favorite"
         value={favorite ? "false" : "true"}
       >
