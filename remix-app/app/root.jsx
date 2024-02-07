@@ -12,18 +12,17 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import appStylesHref from "./app.css"
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import type { ContactRecord } from "./data.js";
 import { useEffect } from "react";
 
-export const links: LinksFunction = () => {
+export function links() {
   return [{ rel: "stylesheet", href: appStylesHref }];
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
+  
   let apiUrl = process.env.API_URL + "/contacts";
   if (q) {
     apiUrl += "/search?q=" + encodeURIComponent(q);
@@ -32,12 +31,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!res.ok) {
     throw new Error("Failed to load contacts");
   }
-  const contacts: ContactRecord[] = await res.json();
+  const contacts = await res.json();
   return json({ contacts, q });
 }
 
 export default function App() {
-  const { contacts, q } = useLoaderData<typeof loader>();
+  const { contacts, q } = useLoaderData();
   const navigation = useNavigation();
   const submit = useSubmit();
 
