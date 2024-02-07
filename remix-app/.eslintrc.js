@@ -39,6 +39,9 @@ module.exports = {
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
       ],
+      rules: {
+        "react/prop-types": "off", // Disable PropTypes validation
+      },
       settings: {
         react: {
           version: "detect",
@@ -51,10 +54,8 @@ module.exports = {
         "import/resolver": {
           typescript: {},
         },
-      },
-    
+      }
     },
-
     // Typescript
     {
       files: ["**/*.{ts,tsx}"],
@@ -77,7 +78,6 @@ module.exports = {
         "plugin:import/typescript",
       ],
     },
-
     // Node
     {
       files: [".eslintrc.js"],
