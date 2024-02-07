@@ -1,6 +1,7 @@
 // Imports
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
 import db from "./database.js";
 import { ObjectId } from "mongodb";
 
@@ -11,8 +12,9 @@ const server = express();
 const PORT = process.env.PORT;
 
 // Configure middleware
-server.use(express.json()); // to parse JSON bodies
+server.use(express.json()); // To parse JSON bodies
 server.use(cors()); // Enable CORS for all routes
+server.use(process.env.NODE_ENV === "production" ? morgan("tiny") : morgan("dev")); // Log HTTP requests in production or development
 
 // Pretty print JSON
 server.set("json spaces", 2);
