@@ -69,20 +69,24 @@ export default function Contact() {
           </div>
         </div>
       </div>
+      <h2 className="mb-3 mt-4 text-2xl font-bold">Notes</h2>
+      <Form method="post" className="flex flex-row items-center gap-3">
+        <input
+          type="text"
+          className="mb-0 flex-grow rounded border border-gray-300 p-2"
+          placeholder={`New note about ${contact.first}`}
+          name="note"
+        />
+        <button type="submit">Save</button>
+      </Form>
       {contact.notes?.length > 0 && (
-        <div>
-          <h2 className="mb-3 mt-4 text-2xl font-bold">Notes</h2>
-          <ul>
-            {contact.notes.map((note, index) => (
-              <li
-                key={index}
-                className="border-t border-gray-200 last:border-b"
-              >
-                <p className="py-3">{note}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul>
+          {contact.notes.map((note, index) => (
+            <li key={index} className="border-b border-gray-200">
+              <p className="py-3">{note}</p>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
