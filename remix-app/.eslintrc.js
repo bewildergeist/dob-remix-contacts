@@ -54,7 +54,7 @@ module.exports = {
         "import/resolver": {
           typescript: {},
         },
-      }
+      },
     },
     // Typescript
     {

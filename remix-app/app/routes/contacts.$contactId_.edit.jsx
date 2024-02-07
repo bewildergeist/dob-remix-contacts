@@ -2,10 +2,11 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-
 export async function loader({ params }) {
   invariant(params.contactId, "Missing contactId param");
-  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId);
+  const response = await fetch(
+    process.env.API_URL + "/contacts/" + params.contactId,
+  );
   if (!response.ok) {
     const error = await response.json();
     throw new Response(error.message, { status: response.status });
@@ -58,15 +59,13 @@ export default function EditContact() {
       </label>
       <label>
         <span>Notes</span>
-        <textarea
-          defaultValue={contact.notes}
-          name="notes"
-          rows={6}
-        />
+        <textarea defaultValue={contact.notes} name="notes" rows={6} />
       </label>
       <p>
         <button type="submit">Save</button>
-        <button type="button" onClick={() => navigate(-1)}>Cancel</button>
+        <button type="button" onClick={() => navigate(-1)}>
+          Cancel
+        </button>
       </p>
     </Form>
   );
@@ -76,13 +75,16 @@ export async function action({ params, request }) {
   invariant(params.contactId, "Missing contactId param");
   const formData = await request.formData();
   const updates = Object.fromEntries(formData);
-  const response = await fetch(process.env.API_URL + "/contacts/" + params.contactId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
+  const response = await fetch(
+    process.env.API_URL + "/contacts/" + params.contactId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updates),
     },
-    body: JSON.stringify(updates),
-  });
+  );
   if (!response.ok) {
     const error = await response.json();
     throw new Response(error.message, { status: response.status });

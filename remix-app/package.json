@@ -11,7 +11,9 @@
     "typecheck": "tsc"
   },
   "prettier": {
-    "plugins": ["prettier-plugin-tailwindcss"]
+    "plugins": [
+      "prettier-plugin-tailwindcss"
+    ]
   },
   "dependencies": {
     "@remix-run/node": "^2.5.0",

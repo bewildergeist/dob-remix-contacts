@@ -13,17 +13,20 @@ import {
 } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useEffect } from "react";
-import appStylesHref from "./app.css"
-import tailwindStylesHref from "./tailwind.css"
+import appStylesHref from "./app.css";
+import tailwindStylesHref from "./tailwind.css";
 
 export function links() {
-  return [{ rel: "stylesheet", href: tailwindStylesHref }, { rel: "stylesheet", href: appStylesHref }];
+  return [
+    { rel: "stylesheet", href: tailwindStylesHref },
+    { rel: "stylesheet", href: appStylesHref },
+  ];
 }
 
 export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
-  
+
   let apiUrl = process.env.API_URL + "/contacts";
   if (q) {
     apiUrl += "/search?q=" + encodeURIComponent(q);
@@ -48,7 +51,9 @@ export default function App() {
     }
   }, [q]);
 
-  const searching = navigation.location && new URLSearchParams(navigation.location.search).has("q");
+  const searching =
+    navigation.location &&
+    new URLSearchParams(navigation.location.search).has("q");
 
   return (
     <html lang="en">
@@ -62,13 +67,16 @@ export default function App() {
         <div id="sidebar">
           <h1>Remix Contacts</h1>
           <div>
-            <Form id="search-form" role="search" onChange={
-              (event) => {
+            <Form
+              id="search-form"
+              role="search"
+              onChange={(event) => {
                 const isFirstSearch = q === null;
                 submit(event.currentTarget, {
                   replace: !isFirstSearch,
-                })
-              }}>
+                });
+              }}
+            >
               <input
                 id="q"
                 aria-label="Search contacts"
@@ -89,9 +97,12 @@ export default function App() {
               <ul>
                 {contacts.map((contact) => (
                   <li key={contact._id}>
-                    <NavLink to={`contacts/${contact._id}`} className={({ isActive, isPending }) => {
-                      return isActive ? "active" : isPending ? "pending" : ""
-                    }}>
+                    <NavLink
+                      to={`contacts/${contact._id}`}
+                      className={({ isActive, isPending }) => {
+                        return isActive ? "active" : isPending ? "pending" : "";
+                      }}
+                    >
                       {contact.first || contact.last ? (
                         <>
                           {contact.first} {contact.last}
@@ -99,9 +110,7 @@ export default function App() {
                       ) : (
                         <i>No Name</i>
                       )}{" "}
-                      {contact.favorite ? (
-                        <span>★</span>
-                      ) : null}
+                      {contact.favorite ? <span>★</span> : null}
                     </NavLink>
                   </li>
                 ))}
@@ -113,7 +122,12 @@ export default function App() {
             )}
           </nav>
         </div>
-        <div id="detail" className={navigation.state === "loading" && !searching ? "loading" : ""}>
+        <div
+          id="detail"
+          className={
+            navigation.state === "loading" && !searching ? "loading" : ""
+          }
+        >
           <Outlet />
         </div>
 
@@ -135,5 +149,5 @@ export async function action() {
     throw new Error(error.message);
   }
   const contact = await response.json();
-  return redirect(`/contacts/${contact._id}/edit`)
+  return redirect(`/contacts/${contact._id}/edit`);
 }
