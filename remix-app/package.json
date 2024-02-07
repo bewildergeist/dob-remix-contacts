@@ -6,10 +6,13 @@
     "build": "remix build",
     "dev": "remix dev --manual",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "format": "prettier --write .",
     "start": "remix-serve build/index.js",
     "typecheck": "tsc"
   },
   "prettier": {
+    "plugins": ["prettier-plugin-tailwindcss"]
+  },
   "dependencies": {
     "@remix-run/node": "^2.5.0",
     "@remix-run/react": "^2.5.0",
