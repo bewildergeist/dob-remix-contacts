@@ -159,6 +159,30 @@ server.patch("/contacts/:id/favorite", async (req, res) => {
     }
 });
 
+// Create a new note on a contact (POST /contacts/:id/notes)
+server.post("/contacts/:id/notes", async (req, res) => {
+    const id = req.params.id; // get id from request URL
+
+    try {
+        const objectId = new ObjectId(id); // create ObjectId from id
+        const note = req.body; // get note object from request body
+        const result = await db
+            .collection("contacts")
+            .updateOne(
+                { _id: objectId },
+                { $push: { notes: note } }
+            ); // Add note to contact in database
+
+        if (result.acknowledged) {
+            res.json({ message: `Added note to contact with id ${id}` }); // return message
+        } else {
+            res.status(500).json({ message: "Failed to add note to contact" }); // return error message
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
+    }
+});
+
 // ========== Start server ========== //
 
 // Start server on whatever port is set in the environment variable PORT
