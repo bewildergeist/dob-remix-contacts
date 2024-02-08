@@ -183,6 +183,31 @@ server.post("/contacts/:id/notes", async (req, res) => {
     }
 });
 
+// Retrieve a single note from a contact (GET /contacts/:contactId/notes/:noteIndex)
+server.get("/contacts/:contactId/notes/:noteIndex", async (req, res) => {
+    const contactId = req.params.contactId; // get contactId from request URL
+    const noteIndex = parseInt(req.params.noteIndex); // get noteIndex from request URL and parse it as an integer
+
+    try {
+        const objectId = new ObjectId(contactId); // create ObjectId from contactId
+        const contact = await db
+            .collection("contacts")
+            .findOne({ _id: objectId }); // Get the contact from the database
+
+        if (contact) {
+            const note = contact.notes[noteIndex];
+            if (!note) {
+                res.status(404).json({ message: "Note not found" });
+            }
+            res.json(note);
+        } else {
+            res.status(404).json({ message: "Contact not found" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
+    }
+});
+
 // ========== Start server ========== //
 
 // Start server on whatever port is set in the environment variable PORT
