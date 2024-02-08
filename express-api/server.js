@@ -159,6 +159,55 @@ server.patch("/contacts/:id/favorite", async (req, res) => {
     }
 });
 
+// Create a new note on a contact (POST /contacts/:id/notes)
+server.post("/contacts/:id/notes", async (req, res) => {
+    const id = req.params.id; // get id from request URL
+
+    try {
+        const objectId = new ObjectId(id); // create ObjectId from id
+        const note = req.body; // get note object from request body
+        const result = await db
+            .collection("contacts")
+            .updateOne(
+                { _id: objectId },
+                { $push: { notes: note } }
+            ); // Add note to contact in database
+
+        if (result.acknowledged) {
+            res.json({ message: `Added note to contact with id ${id}` }); // return message
+        } else {
+            res.status(500).json({ message: "Failed to add note to contact" }); // return error message
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
+    }
+});
+
+// Retrieve a single note from a contact (GET /contacts/:contactId/notes/:noteIndex)
+server.get("/contacts/:contactId/notes/:noteIndex", async (req, res) => {
+    const contactId = req.params.contactId; // get contactId from request URL
+    const noteIndex = parseInt(req.params.noteIndex); // get noteIndex from request URL and parse it as an integer
+
+    try {
+        const objectId = new ObjectId(contactId); // create ObjectId from contactId
+        const contact = await db
+            .collection("contacts")
+            .findOne({ _id: objectId }); // Get the contact from the database
+
+        if (contact) {
+            const note = contact.notes[noteIndex];
+            if (!note) {
+                res.status(404).json({ message: "Note not found" });
+            }
+            res.json(note);
+        } else {
+            res.status(404).json({ message: "Contact not found" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
+    }
+});
+
 // ========== Start server ========== //
 
 // Start server on whatever port is set in the environment variable PORT
