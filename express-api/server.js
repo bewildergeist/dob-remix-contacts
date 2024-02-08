@@ -68,7 +68,7 @@ server.get("/contacts/:id", async (req, res) => {
         if (contact) {
             res.json(contact); // return first contact from results as JSON
         } else {
-            res.status(404).json({ message: "Contact not found!" }); // otherwise return 404 and error message
+            res.status(404).json({ message: "Contact not found" }); // otherwise return 404 and error message
         }
     } catch (error) {
         res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
@@ -152,7 +152,7 @@ server.patch("/contacts/:id/favorite", async (req, res) => {
                 message: `Toggled favorite property of contact with id ${id}`,
             }); // return message
         } else {
-            res.status(404).json({ message: "Contact not found!" }); // return 404 if contact was not found
+            res.status(404).json({ message: "Contact not found" }); // return 404 if contact was not found
         }
     } catch (error) {
         res.status(400).json({ message: "Invalid ObjectId" }); // return 400 and error message for invalid ObjectId
