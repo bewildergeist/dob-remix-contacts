@@ -96,7 +96,7 @@ export default function Contact() {
           {contact.notes?.length > 0 && (
             <div className="mt-8 flex flex-row gap-6">
               <ul className="flex-grow">
-                {[...contact.notes].reverse().map((item, index) => (
+                {contact.notes.map((item, index) => (
                   <li
                     key={index}
                     className="border-b border-gray-200 first:border-t"
