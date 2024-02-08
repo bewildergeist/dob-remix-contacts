@@ -70,7 +70,12 @@ export default function Contact() {
         </div>
       </div>
       <h2 className="mb-3 mt-4 text-2xl font-bold">Notes</h2>
-      <Form method="post" className="flex flex-row items-center gap-3">
+      {/* Add a key to the form to reset the state and clear the input when the contact changes */}
+      <Form
+        method="post"
+        className="flex flex-row items-center gap-3"
+        key={contact._id}
+      >
         <input
           type="text"
           className="mb-0 flex-grow rounded border border-gray-300 p-2"
