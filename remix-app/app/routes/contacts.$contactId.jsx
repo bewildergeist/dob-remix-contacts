@@ -1,4 +1,11 @@
-import { Form, json, useFetcher, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  NavLink,
+  Outlet,
+  json,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 export async function loader({ params }) {
@@ -69,30 +76,50 @@ export default function Contact() {
           </div>
         </div>
       </div>
-      <h2 className="mb-3 mt-4 text-2xl font-bold">Notes</h2>
-      {/* Add a key to the form to reset the state and clear the input when the contact changes */}
-      <Form
-        method="post"
-        className="flex flex-row items-center gap-3"
-        key={contact._id}
-      >
-        <input
-          type="text"
-          className="mb-0 flex-grow rounded border border-gray-300 p-2"
-          placeholder={`New note about ${contact.first}`}
-          name="note"
-        />
-        <button type="submit">Save</button>
-      </Form>
-      {contact.notes?.length > 0 && (
-        <ul>
-          {[...contact.notes].reverse().map((item, index) => (
-            <li key={index} className="border-b border-gray-200">
-              <p className="py-3">{item.note}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div id="notes">
+        <div id="note-form">
+          <h2 className="mb-3 mt-4 text-2xl font-bold">Notes</h2>
+          {/* Add a key to the form to reset the state and clear the input when the contact changes */}
+          <Form
+            method="post"
+            className="flex flex-row items-center gap-3"
+            key={contact._id}
+          >
+            <input
+              type="text"
+              className="mb-0 flex-grow rounded border border-gray-300 p-2"
+              placeholder={`New note about ${contact.first}`}
+              name="note"
+            />
+            <button type="submit">Save</button>
+          </Form>
+          {contact.notes?.length > 0 && (
+            <div className="mt-8 flex flex-row gap-6">
+              <ul className="flex-grow">
+                {[...contact.notes].reverse().map((item, index) => (
+                  <li
+                    key={index}
+                    className="border-b border-gray-200 first:border-t"
+                  >
+                    <NavLink
+                      to={`notes/${index}`}
+                      className={({ isActive }) => {
+                        return (
+                          "block px-2 py-3 transition-colors hover:bg-gray-50" +
+                          (isActive ? " bg-gray-50 font-bold" : "")
+                        );
+                      }}
+                    >
+                      {item.note}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+              <Outlet />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
