@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { json } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -6,22 +7,21 @@ import {
   useRouteError,
 } from "@remix-run/react";
 import ErrorMessage from "~/components/ErrorMessage";
+import invariant from "tiny-invariant";
 
 export async function loader({ params }) {
-  const noteResponse = await fetch(
-    process.env.API_URL +
-      "/contacts/" +
-      params.contactId +
-      "/notes/" +
-      params.noteIndex,
-  );
+  invariant(params.contactId, "Missing contactId param");
+  invariant(params.noteIndex, "Missing noteIndex param");
 
-  if (!noteResponse.ok) {
-    const error = await noteResponse.json();
-    throw new Response(error.message, { status: noteResponse.status });
+  const contact = await mongoose.models.Contact.findById(params.contactId);
+  if (!contact) {
+    throw new Response("Contact not found", { status: 404 });
   }
 
-  const note = await noteResponse.json();
+  const note = contact.notes[params.noteIndex];
+  if (!note) {
+    throw new Response("Note not found", { status: 404 });
+  }
 
   return json({ note });
 }
