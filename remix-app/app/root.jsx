@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {
   Form,
   Links,
@@ -27,15 +28,19 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
 
-  let apiUrl = process.env.API_URL + "/contacts";
+  let query = {};
   if (q) {
-    apiUrl += "/search?q=" + encodeURIComponent(q);
+    query = {
+      $or: [
+        { first: { $regex: q, $options: "i" } },
+        { last: { $regex: q, $options: "i" } },
+      ],
+    };
   }
-  const res = await fetch(apiUrl);
-  if (!res.ok) {
-    throw new Error("Failed to load contacts");
-  }
-  const contacts = await res.json();
+  const contacts = await mongoose.models.Contact.find(query).sort({
+    first: 1,
+    last: 1,
+  });
   return json({ contacts, q });
 }
 
@@ -140,14 +145,10 @@ export default function App() {
 }
 
 export async function action() {
-  const response = await fetch(process.env.API_URL + "/contacts", {
-    method: "POST",
-    body: JSON.stringify({}),
+  const contact = new mongoose.models.Contact({
+    first: "No",
+    last: "Name",
   });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message);
-  }
-  const contact = await response.json();
+  await contact.save();
   return redirect(`/contacts/${contact._id}/edit`);
 }
