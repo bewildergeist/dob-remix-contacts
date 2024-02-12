@@ -1,17 +1,14 @@
+import mongoose from "mongoose";
 import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 export async function loader({ params }) {
   invariant(params.contactId, "Missing contactId param");
-  const response = await fetch(
-    process.env.API_URL + "/contacts/" + params.contactId,
-  );
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Response(error.message, { status: response.status });
+  const contact = await mongoose.models.Contact.findById(params.contactId);
+  if (!contact) {
+    throw new Response("Contact not found", { status: 404 });
   }
-  const contact = await response.json();
   return json({ contact });
 }
 
@@ -70,20 +67,14 @@ export default function EditContact() {
 export async function action({ params, request }) {
   invariant(params.contactId, "Missing contactId param");
   const formData = await request.formData();
-  const updates = Object.fromEntries(formData);
-  const response = await fetch(
-    process.env.API_URL + "/contacts/" + params.contactId,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updates),
-    },
-  );
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Response(error.message, { status: response.status });
+  const contact = await mongoose.models.Contact.findById(params.contactId);
+  if (!contact) {
+    throw new Response("Contact not found", { status: 404 });
   }
+  contact.first = formData.get("first");
+  contact.last = formData.get("last");
+  contact.twitter = formData.get("twitter");
+  contact.avatar = formData.get("avatar");
+  await contact.save();
   return redirect(`/contacts/${params.contactId}`);
 }
