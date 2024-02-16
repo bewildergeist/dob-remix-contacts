@@ -4,24 +4,24 @@ const contactSchema = new mongoose.Schema(
   {
     first: {
       type: String,
-      required: true,
+      required: [true, "Please enter your first name"],
       minLength: [2, "That's too short"],
     },
     last: {
       type: String,
-      required: true,
+      required: [true, "Please enter your last name"],
       minLength: [2, "That's too short"],
     },
     avatar: {
       type: String,
       match: [
         /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp))$/i,
-        "That's not a valid URL",
+        "That's not a valid image URL",
       ],
     },
     twitter: {
       type: String,
-      match: [/^@?(\w){1,15}$/, "That's not a valid Twitter handle"],
+      match: [/^@?(\w){1,15}$/, "A valid Twitter handle is 1-15 characters"],
     },
     favorite: {
       type: Boolean,
