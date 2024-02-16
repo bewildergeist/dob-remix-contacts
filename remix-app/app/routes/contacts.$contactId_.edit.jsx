@@ -44,7 +44,7 @@ export default function EditContact() {
           errorMessage={actionData?.errors?.last?.message}
         />
       </p>
-      <label>
+      <label htmlFor="twitter">
         <span>Twitter</span>
         <Input
           name="twitter"
@@ -53,7 +53,7 @@ export default function EditContact() {
           errorMessage={actionData?.errors?.twitter?.message}
         />
       </label>
-      <label>
+      <label htmlFor="avatar">
         <span>Avatar URL</span>
         <Input
           name="avatar"
