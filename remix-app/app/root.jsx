@@ -9,6 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
@@ -57,6 +58,7 @@ export async function loader({ request }) {
 export default function App() {
   const { contacts, q, sort } = useLoaderData();
   const navigation = useNavigation();
+  const location = useLocation();
   const submit = useSubmit();
 
   useEffect(() => {
@@ -148,7 +150,7 @@ export default function App() {
                 {contacts.map((contact) => (
                   <li key={contact._id}>
                     <NavLink
-                      to={`contacts/${contact._id}`}
+                      to={`contacts/${contact._id}${location.search ?? ""}`}
                       className={({ isActive, isPending }) => {
                         return isActive ? "active" : isPending ? "pending" : "";
                       }}
