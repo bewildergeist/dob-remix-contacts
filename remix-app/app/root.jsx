@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import {
   Form,
+  Link,
   Links,
   LiveReload,
   Meta,
@@ -82,7 +83,11 @@ export default function App() {
       </head>
       <body>
         <div id="sidebar">
-          <h1>Remix Contacts</h1>
+          <h1>
+            <Link to="/" className="hover:underline">
+              Remix Contacts
+            </Link>
+          </h1>
           <div className="flex flex-row items-start gap-2 py-4">
             <Form
               id="search-form"
