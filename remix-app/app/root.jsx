@@ -154,13 +154,20 @@ export default function App() {
                       }}
                     >
                       {contact.first || contact.last ? (
-                        <>
-                          {contact.first} {contact.last}
-                        </>
+                        <span>
+                          <span className={sort === "first" ? "font-bold" : ""}>
+                            {contact.first}
+                          </span>{" "}
+                          <span className={sort === "last" ? "font-bold" : ""}>
+                            {contact.last}
+                          </span>
+                        </span>
                       ) : (
                         <i>No Name</i>
                       )}{" "}
-                      {contact.favorite ? <span>★</span> : null}
+                      {contact.favorite ? (
+                        <span className="float-right text-amber-400">★</span>
+                      ) : null}
                     </NavLink>
                   </li>
                 ))}

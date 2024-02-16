@@ -186,14 +186,6 @@ body {
   padding-top: 1rem;
 }
 
-#sidebar nav a span {
-  float: right;
-  color: #eeb004;
-}
-#sidebar nav a.active span {
-  color: inherit;
-}
-
 i {
   color: #818181;
 }
