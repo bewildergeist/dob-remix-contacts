@@ -1,7 +1,15 @@
 import mongoose from "mongoose";
 import { json, redirect } from "@remix-run/node";
+import {
+  Form,
+  isRouteErrorResponse,
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+  useLoaderData,
+  useNavigate,
+  useRouteError,
+} from "@remix-run/react";
 import invariant from "tiny-invariant";
+import ErrorMessage from "~/components/ErrorMessage";
 
 export async function loader({ params }) {
   invariant(params.contactId, "Missing contactId param");
@@ -62,6 +70,23 @@ export default function EditContact() {
       </p>
     </Form>
   );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <ErrorMessage
+        title={error.status + " " + error.statusText}
+        message={error.data}
+      />
+    );
+  } else if (error instanceof Error) {
+    return <ErrorMessage title={error.message} message={error.stack} />;
+  } else {
+    return <ErrorMessage title="Unknown Error" />;
+  }
 }
 
 export async function action({ params, request }) {
