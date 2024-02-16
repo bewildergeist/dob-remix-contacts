@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import {
   Form,
+  Link,
   Links,
   LiveReload,
   Meta,
@@ -9,6 +10,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
@@ -27,6 +29,7 @@ export function links() {
 export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
+  const sort = url.searchParams.get("sort");
 
   let query = {};
   if (q) {
@@ -37,16 +40,26 @@ export async function loader({ request }) {
       ],
     };
   }
-  const contacts = await mongoose.models.Contact.find(query).sort({
+
+  let sortDoc = {
     first: 1,
     last: 1,
-  });
-  return json({ contacts, q });
+  };
+
+  if (sort === "favorite") {
+    sortDoc = { favorite: -1, ...sortDoc };
+  } else if (sort === "last") {
+    sortDoc = { last: 1, first: 1 };
+  }
+
+  const contacts = await mongoose.models.Contact.find(query).sort(sortDoc);
+  return json({ contacts, q, sort });
 }
 
 export default function App() {
-  const { contacts, q } = useLoaderData();
+  const { contacts, q, sort } = useLoaderData();
   const navigation = useNavigation();
+  const location = useLocation();
   const submit = useSubmit();
 
   useEffect(() => {
@@ -70,8 +83,12 @@ export default function App() {
       </head>
       <body>
         <div id="sidebar">
-          <h1>Remix Contacts</h1>
-          <div>
+          <h1>
+            <Link to="/" className="hover:underline">
+              Remix Contacts
+            </Link>
+          </h1>
+          <div className="flex flex-row items-start gap-2 py-4">
             <Form
               id="search-form"
               role="search"
@@ -92,6 +109,41 @@ export default function App() {
                 className={searching ? "loading" : ""}
               />
               <div id="search-spinner" aria-hidden hidden={!searching} />
+              <p className="mb-1 mt-2 text-sm font-bold text-gray-400">
+                Sort by:
+              </p>
+              <div className="flex flex-row gap-1">
+                <button
+                  name="sort"
+                  value="favorite"
+                  className={
+                    "text-sm" +
+                    (sort === "favorite" ? " bg-white" : " bg-transparent")
+                  }
+                >
+                  ★
+                </button>
+                <button
+                  name="sort"
+                  value="first"
+                  className={
+                    "text-sm" +
+                    (sort === "first" ? " bg-white" : " bg-transparent")
+                  }
+                >
+                  First
+                </button>
+                <button
+                  name="sort"
+                  value="last"
+                  className={
+                    "text-sm" +
+                    (sort === "last" ? " bg-white" : " bg-transparent")
+                  }
+                >
+                  Last
+                </button>
+              </div>
             </Form>
             <Form method="post">
               <button type="submit">New</button>
@@ -103,19 +155,26 @@ export default function App() {
                 {contacts.map((contact) => (
                   <li key={contact._id}>
                     <NavLink
-                      to={`contacts/${contact._id}`}
+                      to={`contacts/${contact._id}${location.search ?? ""}`}
                       className={({ isActive, isPending }) => {
                         return isActive ? "active" : isPending ? "pending" : "";
                       }}
                     >
                       {contact.first || contact.last ? (
-                        <>
-                          {contact.first} {contact.last}
-                        </>
+                        <span>
+                          <span className={sort === "first" ? "font-bold" : ""}>
+                            {contact.first}
+                          </span>{" "}
+                          <span className={sort === "last" ? "font-bold" : ""}>
+                            {contact.last}
+                          </span>
+                        </span>
                       ) : (
                         <i>No Name</i>
                       )}{" "}
-                      {contact.favorite ? <span>★</span> : null}
+                      {contact.favorite ? (
+                        <span className="float-right text-amber-400">★</span>
+                      ) : null}
                     </NavLink>
                   </li>
                 ))}
