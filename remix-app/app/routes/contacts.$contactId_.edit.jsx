@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import {
   Form,
   isRouteErrorResponse,
-import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+  useActionData,
   useLoaderData,
   useNavigate,
   useRouteError,
@@ -22,19 +22,29 @@ export async function loader({ params }) {
 
 export default function EditContact() {
   const { contact } = useLoaderData();
+  const actionData = useActionData();
   const navigate = useNavigate();
 
   return (
     <Form id="contact-form" method="post">
       <p>
         <span>Name</span>
-        <input
-          defaultValue={contact.first}
-          aria-label="First name"
-          name="first"
-          type="text"
-          placeholder="First"
-        />
+        <div>
+          <input
+            defaultValue={actionData?.values?.first ?? contact.first}
+            aria-label="First name"
+            name="first"
+            type="text"
+            placeholder="First"
+            aria-describedby={actionData?.errors?.first ? "error-first" : null}
+            className={actionData?.errors?.first ? "bg-orange-50" : ""}
+          />
+          {actionData?.errors?.first && (
+            <div id="error-first" className="mt-2 text-sm text-orange-700">
+              {actionData.errors.first.message}
+            </div>
+          )}
+        </div>
         <input
           aria-label="Last name"
           defaultValue={contact.last}
@@ -100,6 +110,23 @@ export async function action({ params, request }) {
   contact.last = formData.get("last");
   contact.twitter = formData.get("twitter");
   contact.avatar = formData.get("avatar");
-  await contact.save();
+  try {
+    await contact.save();
+  } catch (error) {
+    return json(
+      {
+        // Pass the validation errors back to the client to be displayed
+        // alongside the relevant form fields. We get these errrors from the
+        // Mongoose model's validation:
+        // https://mongoosejs.com/docs/validation.html#validation-errors
+        errors: error.errors,
+        // Pass the form data back to the client as "values" so the user doesn't
+        // lose their changes in case JavaScript is disabled and the page reloads
+        // on submit.
+        values: Object.fromEntries(formData),
+      },
+      { status: 400 },
+    );
+  }
   return redirect(`/contacts/${params.contactId}`);
 }
