@@ -25,6 +25,10 @@ export default function EditContact() {
   const actionData = useActionData();
   const navigate = useNavigate();
 
+  function hasError(fieldName) {
+    return actionData?.errors?.[fieldName] !== undefined;
+  }
+
   return (
     <Form id="contact-form" method="post">
       <p>
@@ -36,10 +40,10 @@ export default function EditContact() {
             name="first"
             type="text"
             placeholder="First"
-            aria-describedby={actionData?.errors?.first ? "error-first" : null}
-            className={actionData?.errors?.first ? "bg-orange-50" : ""}
+            aria-describedby={hasError("first") ? "error-first" : null}
+            className={hasError("first") ? "bg-orange-50" : ""}
           />
-          {actionData?.errors?.first && (
+          {hasError("first") && (
             <div id="error-first" className="mt-2 text-sm text-orange-700">
               {actionData.errors.first.message}
             </div>
